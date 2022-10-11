@@ -36,7 +36,7 @@ const resolvers = {
         };
       }
     },
-    getMemory: async (parent, args, context) => {
+    getMemory: async (_, args, context) => {
       if (context.userId) {
         const memory = await Memories.findOne({ _id: args.memoryId });
         if (memory) {
@@ -97,7 +97,7 @@ const resolvers = {
     },
   },
   error: {
-    __resolveType(obj, context, info) {
+    __resolveType(obj) {
       if (obj.email) {
         return "User";
       }
@@ -111,11 +111,10 @@ const resolvers = {
       return null;
     },
   },
-  error1: {
-    __resolveType(obj, context, info) {
-      console.log("obj", obj);
+  memError: {
+    __resolveType(obj) {
       if (obj.memory) {
-        return "memoryError";
+        return "MemoryError";
       } else {
         return "Error";
       }
@@ -124,7 +123,7 @@ const resolvers = {
     },
   },
   Mutation: {
-    createUser: (root, { input }) => {
+    createUser: async (root, { input }) => {
       const newUser = new Users({
         name: input.name,
         email: input.email,
@@ -133,12 +132,8 @@ const resolvers = {
 
       newUser.id = newUser._id;
 
-      return new Promise((resolve, reject) => {
-        newUser.save((err) => {
-          if (err) reject(err);
-          else resolve(newUser);
-        });
-      });
+      await newUser.save();
+      return newUser;
     },
     addMemories: async (root, { input }, context) => {
       if (context.userId) {
@@ -148,32 +143,31 @@ const resolvers = {
             description: input.description,
             tags: input.tags,
             image: input.image,
-            userId: input.userId,
+            userId: context.userId,
             sharedFrom: input.sharedFromUserId,
           });
           newMemory.id = newMemory._id;
-          return new Promise((resolve, reject) => {
-            newMemory.save((err) => {
-              if (err) reject(err);
-              else resolve(newMemory);
-            });
-          });
+          await newMemory.save();
+          return {
+            message: "shared Memory added Successfully",
+            code: 200,
+            data: newMemory,
+          };
         } else {
           const newMemory = new Memories({
             title: input.title,
             description: input.description,
             tags: input.tags,
             image: input.image,
-            userId: input.userId,
+            userId: context.userId,
           });
           newMemory.id = newMemory._id;
-
-          return new Promise((resolve, reject) => {
-            newMemory.save((err) => {
-              if (err) reject(err);
-              else resolve(newMemory);
-            });
-          });
+          await newMemory.save();
+          return {
+            message: "Memory added Successfully",
+            code: 200,
+            data: newMemory,
+          };
         }
       } else {
         return {
@@ -186,7 +180,7 @@ const resolvers = {
         const memory = await Memories.findById(input.memoryId);
         if (memory) {
           const newComment = new Comments({
-            userId: input.userId,
+            userId: context.userId,
             memoryId: input.memoryId,
             comment: input.comment,
           });
@@ -210,49 +204,15 @@ const resolvers = {
         };
       }
     },
-    // likeMemory: async (root, { input }) => {
-    //   const memory = await Memories.findById(input.memoryId);
-    //   const user = await User.findById(input.userId);
-    //   if ((memory, user)) {
-    //     // console.log( memory.likes[0].userId);
-    //     // console.log( user._id);
-    //     if (memory.likes.find((like) => like.userId == user._id)) {
-    //       memory.likes = memory.likes.filter((like) => like.userId != user._id);
-    //       await memory.save();
-    //       return {
-    //         message: "UnLiked Comment",
-    //         code: 200,
-    //       };
-    //     } else {
-    //       memory.likes.push({
-    //         userId: user._id,
-    //       });
-    //     }
-    //     await memory.save();
-    //     console.log(memory);
-    //     // return memory;
-    //     return {
-    //       message: "Liked Comment",
-    //       code: 200,
-    //       data: memory,
-    //     };
-    //   } else {
-    //     return {
-    //       message: "Cannot like this post ",
-    //       code: 402,
-    //     };
-    //   }
-    // },
     likeMemory: async (root, { input }, context) => {
       if (context.userId) {
         const memory = await Memories.findById(input.memoryId);
-        // const user = await Users.findById(input.userId);
         const memoryBeforeLiked = await Likes.find({
           memoryId: input.memoryId,
           userId: context.userId,
         });
         if (memoryBeforeLiked.length) {
-          const unlike = await Likes.findOneAndDelete({
+          const unlike = await Likes.deleteOne({
             id: memoryBeforeLiked._id,
           });
           return {

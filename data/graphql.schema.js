@@ -11,7 +11,7 @@ const typeDefs = gql`
     data: String
   }
   union error = Error | User | Memories | Comment
-  union error1 = Error | memoryError
+  union memError = Error | MemoryError
   type Memories {
     _id: ID
     title: String
@@ -29,7 +29,7 @@ const typeDefs = gql`
     memoryId: String!
     comment: String!
   }
-  input memoriesInput {
+  input MemoriesInput {
     title: String
     description: String
     tags: [String]
@@ -64,18 +64,18 @@ const typeDefs = gql`
   input LikeInput {
     memoryId: String!
   }
-  type memoryError {
+  type MemoryError {
     memory: [Memories]!
   }
   type Query {
-    getAllMemories(input: UserIdInput): error1
+    getAllMemories(input: UserIdInput): memError
     userLogin(input: UserLoginInput): error
     getMemory(memoryId: String): Memories
   }
 
   type Mutation {
     createUser(input: UserInput): User
-    addMemories(input: memoriesInput): error
+    addMemories(input: MemoriesInput): error
     createComment(input: CommentInput): error
     likeMemory(input: LikeInput): error
   }

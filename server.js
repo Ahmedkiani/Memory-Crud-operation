@@ -1,14 +1,12 @@
 require("dotenv").config();
 
 const express = require("express");
-const { getUserId } = require("./helper");
 const DataLoader = require("dataloader");
-
-const { ApolloServer } = require("apollo-server-express");
 const app = express();
 const userResolvers = require("./data/resolver");
 const typeDefs = require("./data/graphql.schema");
-const setContext = require("apollo-link-context").setContext;
+const { ApolloServer } = require("apollo-server-express");
+const { getUserId } = require("./helper");
 
 const server = new ApolloServer({
   typeDefs: typeDefs,
