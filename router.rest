@@ -1,0 +1,32 @@
+
+GET http://localhost:3000/user/633ada1ab3a32c16fc0a2dcf
+
+###
+
+POST http://localhost:3000/user/
+Content-Type: application/json
+
+{
+    "name" : "ahmedxamann",
+    "email" : "techverxx@gmail.com",
+    "password" : "12333"
+
+}
+
+###
+
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "email" : "techverx@gmail.com",
+    "password" : "12333"
+
+}
+
+
+
+
+
+
+
