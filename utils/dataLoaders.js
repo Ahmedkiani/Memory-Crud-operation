@@ -3,8 +3,6 @@ const { Collection } = require("mongoose");
 const { Users } = require("../db/dbConnector");
 let load = {};
 async function batchFunction(keys, collection) {
-  console.log("key", keys);
-
   const results = await collection.find({ _id: keys });
   if (results.length) {
     const values = keys.map((key) =>
