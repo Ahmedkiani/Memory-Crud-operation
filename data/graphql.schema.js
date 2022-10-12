@@ -25,7 +25,7 @@ const typeDefs = gql`
   }
   type Comment {
     _id: ID
-    userId: String!
+    userId: User
     memoryId: String!
     comment: String!
   }
@@ -71,6 +71,7 @@ const typeDefs = gql`
     getAllMemories(input: UserIdInput): memError
     userLogin(input: UserLoginInput): error
     getMemory(memoryId: String): Memories
+    getComments(memoryId: String): Comment
   }
 
   type Mutation {

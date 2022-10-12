@@ -68,8 +68,10 @@ const resolvers = {
         };
       }
     },
-    userId: async (parent) => {
+    userId: async (parent, _, context) => {
       const userId = parent.userId;
+      const user = await context.loader(userId, Users);
+      return user;
       const result = await Users.findOne({ _id: userId });
       if (result) {
         return result;
@@ -81,9 +83,8 @@ const resolvers = {
         };
       }
     },
-    comments: async (parent) => {
+    comments: async (parent, _, context) => {
       const memoryId = parent._id;
-
       const result = await Comments.find({ memoryId: memoryId });
       if (result) {
         return result;
@@ -94,6 +95,13 @@ const resolvers = {
           data: null,
         };
       }
+    },
+  },
+  Comment: {
+    userId: async (parent, _, context) => {
+      const userId = parent.userId;
+      const userInfo = await context.loader(userId, Users, "val");
+      return userInfo;
     },
   },
   error: {

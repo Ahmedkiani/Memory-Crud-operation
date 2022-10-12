@@ -7,13 +7,14 @@ const userResolvers = require("./data/resolver");
 const typeDefs = require("./data/graphql.schema");
 const { ApolloServer } = require("apollo-server-express");
 const { getUserId } = require("./helper");
+const { loader } = require("./utils/dataLoaders");
 
 const server = new ApolloServer({
   typeDefs: typeDefs,
   resolvers: userResolvers,
   context: ({ req }) => {
     // console.log("token",req.headers.authorization)
-    return { userId: getUserId(req) };
+    return { userId: getUserId(req), loader };
   },
 });
 server.start().then(() => {

@@ -25,5 +25,5 @@ module.exports = {
   Users,
   Memories,
   Comments,
-  Likes
+  Likes,
 };
